@@ -13,7 +13,9 @@ class Vector{
         }
 
         int push(int val){
-            if (size == capacity) if (resize() != 0) return -1;
+            if (size == capacity){
+                if (resize() != 0){
+                    return -1;}}
 
             data[size++] = val;
             return 0;
