@@ -2,10 +2,9 @@
 
 class Vector{
     public:
-        int  size = 0;
-        int  capacity = 10;
-
         Vector(){ //конструктор (init)
+            size = 0;
+            capacity = 10;
             data = new int[capacity];
         }
 
@@ -37,6 +36,8 @@ class Vector{
 
     private:
         int *data = nullptr;
+        int size;
+        int capacity;
 
         int resize(){
             int cap;
