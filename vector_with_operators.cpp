@@ -59,9 +59,26 @@ class Vector{
             size = 0;
         }
 
+        //оператор ввода
+        friend std::istream& operator >>(std::istream& in, Vector& vect){
+            int n;
+            in >> n;
+            vect.clear();
+            for (int i = 0; i < n; i++){
+                int x;
+                in >> x;
+                vect.push(x);
+            }
+            return in;
+        }
+
         //оператор вывода
-        friend std::ostream& operator <<(Vector& vect, std::ostream& out){
-            for 
+        friend std::ostream& operator <<(std::ostream& out, Vector& vect){
+            for (int i = 0; i < vect.size; i++){
+                out << vect.data[i];
+                if (i+1 < vect.size) out << " ";
+            }
+            return out;
         }
 
 
@@ -94,7 +111,16 @@ int main(){
     vect.push(2);
     vect.push(3);
     vect.pop();
-    std::cout << vect[0];
+    std::cout << vect[0]<< "\n";
+    std::cout << vect<< "\n";
+
+    Vector vect2;
+    std::cin >> vect2;
+    std::cout << vect2<< "\n";
+
+    Vector vect3;
+    vect3 = vect2;
+    std::cout << vect3<< "\n";
 
     return 0;
 }
