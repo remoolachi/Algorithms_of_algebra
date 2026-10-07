@@ -1,180 +1,126 @@
 #include <iostream>
 
-class IntStack{
-    private:
-        struct Node{
-            int value;
-            Node* next;
-        };
-        Node*top;
-    
+class Vector{
     public:
-        IntStack(){
-            top = new Node;
-            top->value=0;
-            top->next = nullptr;
-        }
-        ~IntStack(){
-            while (top!=nullptr){
-                Node* nxt = top;
-                top = top->next;
-                delete nxt;
-            }
+        Vector(){ //конструктор (init)
+            size = 0;
+            capacity = 10;
+            data = new int[capacity];
         }
 
+        ~Vector(){ //деструктор (delete)
+            delete[] data;
+        }
 
         //конструктор копирования
-        IntStack(const IntStack& other){
-            top = new Node;
-            top->value = 0;
-            top->next = nullptr;
+        Vector(const Vector& vector2){
+            size = vector2.size;
+            capacity = vector2.capacity;
+            data = new int[capacity];
 
-            Node* tail = top;
-            Node* curr = other.top->next;
-
-            while (curr != nullptr){
-                Node* node = new Node;
-                node->value = curr->value;
-                node->next = nullptr;
-                tail->next = node;
-                tail = node;
-                curr = curr->next;
+            for (int i = 0; i < size; i++){
+                data[i] = vector2.data[i];
             }
         }
 
         //оператор присваивания
-        IntStack& operator=(const IntStack& other){
-            while (top != nullptr){
-                Node* curr = top;
-                top = top->next;
-                delete curr;
+        Vector& operator =(const Vector& vector2){
+            int* temp = new int[vector2.capacity];
+            for (int i = 0; i < vector2.size; i++){
+                temp[i] = vector2.data[i];
             }
-
-            top = new Node;
-            top->value = 0;
-            top->next = nullptr;
-
-            Node* tail = top;
-            Node* curr = other.top->next;
-
-            while (curr != nullptr){
-                Node* node = new Node;
-                node->value = curr->value;
-                node->next = nullptr;
-                tail->next = node;
-                tail = node;
-                curr = curr->next;
-            }
+            delete[] data;
+            data = temp;
+            size = vector2.size;
+            capacity = vector2.capacity;
 
             return *this;
         }
 
         //оператор []
-        int& operator[](int idx){
-            Node* curr = top->next;
-            for (int i = 0; i < idx && curr != nullptr; i++){
-                curr = curr->next;
-            }
-            return curr->value;
+        int& operator [](int idx){
+            return data[idx];
         }
 
-        void push(int value){
-            Node* new_node = new Node;
-            new_node->value = value;
-            new_node->next = top->next;
-            top->next = new_node;
-        }
+        int push(int val){
+            if (size == capacity) if (resize() != 0) return -1;
 
-        bool isEmpty(){
-            if (top->next==nullptr) return true;
-            else return false;
+            data[size++] = val;
+            return 0;
         }
 
         int pop(){
-            if (!isEmpty()){
-                Node*temp = top;
-                int val = top->value;
-                top = top->next;
-                delete temp;
-                return val;
-            }
+            if (size == 0) return -1;
+            size--;
+            return 0;
         }
 
-        int peek(){
-            if (isEmpty()) return -1;
-            else{
-                return top->next->value;
-            }
+        void clear(){
+            size = 0;
         }
 
         //оператор ввода
-        friend std::istream& operator>>(std::istream& in, IntStack& s){
+        friend std::istream& operator >>(std::istream& in, Vector& vect){
             int n;
             in >> n;
-            
-            Node* tail = s.top;
+            vect.clear();
             for (int i = 0; i < n; i++){
                 int x;
                 in >> x;
-                Node* node = new Node;
-                node->value = x;
-                node->next = nullptr;
-                tail->next = node;
-                tail = node;
+                vect.push(x);
             }
-
             return in;
         }
 
         //оператор вывода
-        friend std::ostream& operator<<(std::ostream& out, const IntStack& s){
-            Node* curr = s.top->next;
-            while (curr != nullptr){
-                out << curr->value;
-                if (curr->next != nullptr) out << " ";
-                curr = curr->next;
+        friend std::ostream& operator <<(std::ostream& out, Vector& vect){
+            for (int i = 0; i < vect.size; i++){
+                out << vect.data[i];
+                if (i+1 < vect.size) out << " ";
             }
             return out;
         }
 
 
-        void print(){
-            if (isEmpty()) std::cout<<"Stack is empty";
-            else{
-                Node* temp = top;
-                while (temp->next!=nullptr){
-                    std::cout<<temp->value<<"\n";
-                    temp=temp->next;
-                }
-            }
+    private:
+        int *data = nullptr;
+        int size;
+        int capacity;
+
+        int resize(){
+            int cap;
+            if (capacity){
+                cap = capacity*2;}
+
+            else cap = 10;
+
+
+            int *tmp = new int[cap];
+            for (int i = 0; i < size; i++) tmp[i] = data[i];
+            delete[] data;
+            data = tmp;
+            capacity = cap;
+            return 0;
         }
 };
 
 int main(){
-    IntStack s;
-    s.push(1);
-    s.push(2);
-    s.push(3);
+    Vector vect;
 
-    std::cout << s[0] << "\n";
+    vect.push(1);
+    vect.push(2);
+    vect.push(3);
+    vect.pop();
+    std::cout << vect[0]<<"\n";
+    std::cout << vect <<"\n";
 
-    s[0] = 100;
-    std::cout<< s << "\n";
+    Vector vect2;
+    std::cin >> vect2;
+    std::cout << vect2<<"\n";
 
-    s.pop();
-    std::cout << s.peek() << "\n";
-
-    IntStack s2 = s;
-    std::cout << s2 << "\n";
-
-    IntStack s3;
-    s3.push(100);
-    s3 = s;
-    std::cout << s3 << "\n";
-
-    IntStack s4;
-    std::cin >> s4;
-    std::cout << s4 << "\n";
+    Vector vect3;
+    vect3 = vect2;
+    std::cout << vect3<<"\n";
 
     return 0;
 }
