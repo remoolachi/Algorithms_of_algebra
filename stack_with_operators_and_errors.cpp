@@ -1,5 +1,42 @@
 #include <iostream>
 
+class Exception{
+    public:
+        const char* er() const{
+            return "Error";
+        }
+};
+
+class Out_of_range: public Exception{
+    public:
+        const char* er() const{
+            return "index out of range";
+        }
+};
+
+class Stack_is_empty: public Exception{
+    public:
+        const char* er() const{
+            return "stack is empty";
+        }
+};
+
+class Negative_element: public Exception{
+    public:
+        const char* er() const{
+            return "the number of elements can't be negative";
+        }
+};
+
+class Eror_in_reading_element: public Exception{
+    public:
+        const char* er() const{
+            return "error in reading elements";
+        }
+};
+
+
+
 class IntStack{
     private:
         struct Node{
@@ -75,7 +112,7 @@ class IntStack{
             for (int i = 0; i < idx && curr != nullptr; i++){
                 curr = curr->next;
             }
-            if (curr == nullptr) throw "index out of range";
+            if (curr == nullptr) throw Out_of_range();
             return curr->value;
         }
 
@@ -99,12 +136,12 @@ class IntStack{
                 delete temp;
                 return val;
             }
-            throw "stack is empty";
+            throw Stack_is_empty();
         }
 
         int peek(){
             if (isEmpty()){
-                throw "stack is empty";
+                throw Stack_is_empty();
             }
             else{
                 return top->next->value;
@@ -116,10 +153,10 @@ class IntStack{
             int n;
             in >> n;
             if (!(in >> n)){
-                throw "error in reading elements";
+                throw Eror_in_reading_element();
             }
             if (n < 0){
-                throw "the number of elements can't be negative";
+                throw Negative_element();
             }
             
             Node* tail = s.top;
@@ -127,7 +164,7 @@ class IntStack{
                 int x;
                 in >> x;
                 if (!(in >> x)){
-                    throw "error in reading the element";
+                    throw Eror_in_reading_element();
                 }
                 Node* node = new Node;
                 node->value = x;
@@ -193,28 +230,34 @@ int main(){
         try{
             std::cout << s[100] << "\n";
         }
-        catch (const char* err){
-            std::cout << err << "\n";
+        catch (const Out_of_range& err){
+            std::cout << err.er() << "\n";
         }
 
         try{
             IntStack empty;
             empty.pop();
         }
-        catch (const char* err){
-            std::cout << err << "\n";
+        catch (const Stack_is_empty& err){
+            std::cout << err.er() << "\n";
         }
 
         try{
             IntStack empty;
             empty.peek();
         }
-        catch (const char* err){
-            std::cout << err << "\n";
+        catch (const Stack_is_empty& err){
+            std::cout << err.er() << "\n";
         }
     }
-    catch (const char* err){
-        std::cout << err << "\n";
+    catch (const Negative_element& err){
+        std::cout << err.er() << "\n";
+    }
+    catch (const Eror_in_reading_element& err){
+        std::cout << err.er() << "\n";
+    }
+    catch (const Exception& err){
+        std::cout << err.er() << "\n";
     }
 
     return 0;
