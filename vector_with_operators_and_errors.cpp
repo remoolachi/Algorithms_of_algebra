@@ -67,7 +67,6 @@ class Vector{
         //оператор ввода
         friend std::istream& operator >>(std::istream& in, Vector& vect){
             int n;
-            in >> n;
             if (!(in >> n)){
                 throw "error in reading elements";
             }
@@ -78,7 +77,6 @@ class Vector{
             vect.clear();
             for (int i = 0; i < n; i++){
                 int x;
-                in >> x;
                 if (!(in >> x)){
                     throw "error in reading the element";
                 }
