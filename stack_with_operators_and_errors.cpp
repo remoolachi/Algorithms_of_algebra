@@ -151,7 +151,6 @@ class IntStack{
         //оператор ввода
         friend std::istream& operator>>(std::istream& in, IntStack& s){
             int n;
-            in >> n;
             if (!(in >> n)){
                 throw Eror_in_reading_element();
             }
@@ -162,7 +161,6 @@ class IntStack{
             Node* tail = s.top;
             for (int i = 0; i < n; i++){
                 int x;
-                in >> x;
                 if (!(in >> x)){
                     throw Eror_in_reading_element();
                 }
