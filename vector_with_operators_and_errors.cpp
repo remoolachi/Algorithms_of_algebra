@@ -1,5 +1,47 @@
 #include <iostream>
 
+class Exception{
+    public:
+        const char* er() const{
+            return "Error";
+        }
+};
+
+class Out_of_range: public Exception{
+    public:
+        const char* er() const{
+            return "index out of range";
+        }
+};
+
+class Vector_is_empty: public Exception{
+    public:
+        const char* er() const{
+            return "vector is empty";
+        }
+};
+
+class Negative_element: public Exception{
+    public:
+        const char* er() const{
+            return "the number of elements can't be negative";
+        }
+};
+
+class Eror_in_reading_element: public Exception{
+    public:
+        const char* er() const{
+            return "error in reading elements";
+        }
+};
+class Eror_in_resize: public Exception{
+    public:
+        const char* er() const{
+            return "resize error";
+        }
+};
+
+
 class Vector{
     public:
         Vector(){ //конструктор (init)
@@ -40,13 +82,17 @@ class Vector{
         //оператор []
         int& operator [](int idx){
             if (idx < 0 || idx >= size){
-                throw "index out of range";
+                throw Out_of_range();
             }
             return data[idx];
         }
 
         int push(int val){
-            if (size == capacity) if (resize() != 0) throw "resize error";
+            if (size == capacity){
+                if (resize() != 0){
+                    throw Eror_in_resize();
+                }
+            }
 
             data[size++] = val;
             return 0;
@@ -54,7 +100,7 @@ class Vector{
 
         int pop(){
             if (size == 0){
-                throw "vector is empty";
+                throw Vector_is_empty();
             }
             size--;
             return 0;
@@ -68,17 +114,17 @@ class Vector{
         friend std::istream& operator >>(std::istream& in, Vector& vect){
             int n;
             if (!(in >> n)){
-                throw "error in reading elements";
+                throw Eror_in_reading_element();
             }
             if (n < 0){
-                throw "the number of elements can't be negative";
+                throw Negative_element();
             }
 
             vect.clear();
             for (int i = 0; i < n; i++){
                 int x;
                 if (!(in >> x)){
-                    throw "error in reading the element";
+                    throw Eror_in_reading_element();
                 }
                 vect.push(x);
             }
@@ -138,21 +184,27 @@ int main(){
         try{
             std::cout << vect[100] << "\n";
         }
-        catch (const char* err){
-            std::cout <<err << "\n";
+        catch (const Out_of_range& err){
+            std::cout << err.er() << "\n";
         }
 
         try{
             Vector empty;
             empty.pop();
         }
-        catch (const char* err){
-            std::cout << err << "\n";
+        catch (const Vector_is_empty& err){
+            std::cout << err.er() << "\n";
         }
 
     }
-    catch (const char* err){
-        std::cout<< err << "\n";
+    catch (const Negative_element& err){
+        std::cout << err.er() << "\n";
+    }
+    catch (const Eror_in_reading_element& err){
+        std::cout << err.er() << "\n";
+    }
+    catch (const Exception& err){
+        std::cout << err.er() << "\n";
     }
 
     return 0;
