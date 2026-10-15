@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 class Exception{
     public:
@@ -177,7 +178,7 @@ class Stack2 : protected Vector{
     public:
         Stack2() : Vector() {}
 
-        virtual ~Stack2() {}
+        //virtual ~Stack2() {}
 
         Stack2(const Stack2& other) : Vector(other) {}
 
@@ -186,6 +187,7 @@ class Stack2 : protected Vector{
             return *this;
         }
 
+    
         virtual int push(int val){
             return Vector::push(val);
         }
@@ -235,18 +237,9 @@ class Stack2 : protected Vector{
             }
             return in;
         }
-
-    private:
-        using Vector::operator[];
-        using Vector::clear;
-        using Vector::resize;
 };
 
 class LimitedStack : public Stack2{
-    
-    private:
-        int max_size;
-
     public:
         LimitedStack(int max) : Stack2(){
             if (max < 0){
@@ -254,8 +247,6 @@ class LimitedStack : public Stack2{
             }
             max_size = max;
         }
-
-        virtual ~LimitedStack() {}
 
         LimitedStack(const LimitedStack& other) : Stack2(other){
             max_size = other.max_size;
@@ -282,62 +273,128 @@ class LimitedStack : public Stack2{
             return Stack2::peek();
         }
 
-        int getMaxSize() const{
+        int getMaxSize(){
             return max_size;
         }
+        
+    private:
+        int max_size;
+
 };
 
 int main(){
+    //Stack
     try{
         Stack2 s;
+        assert(s.isEmpty() == true);
+
         s.push(1);
         s.push(2);
         s.push(3);
-
-        std::cout << s << "\n";
-
-        std::cout << s.peek() << "\n";
+        assert(s.isEmpty() == false);
+        assert(s.peek() == 3);
 
         s.pop();
-        std::cout << s << "\n";
+        assert(s.peek() == 2);
 
-        Stack2 s2 = s;
-        std::cout << s2 << "\n";
+        Stack2 s2 = s;//копирование
+        assert(s2.peek() == 2);
 
         Stack2 s3;
         s3.push(100);
-        s3 = s;
-        std::cout << s3 << "\n";
+        s3 = s; //присваивание
+        assert(s3.peek() == 2);
 
-        Stack2 s4;
-        std::cin >> s4;
-        std::cout << s4 << "\n";
-
+        bool caught = false;
         try{
             Stack2 empty;
             empty.pop();
         }
         catch (const Stack_is_empty& err){
+            caught = true;
             std::cout << err.er() << "\n";
         }
+        assert(caught == true);
 
+        caught = false;
         try{
             Stack2 empty;
             empty.peek();
         }
         catch (const Stack_is_empty& err){
+            caught = true;
             std::cout << err.er() << "\n";
         }
-    }
-    catch (const Negative_element& err){
-        std::cout << err.er() << "\n";
-    }
-    catch (const Eror_in_reading_element& err){
-        std::cout << err.er() << "\n";
-    }
-    catch (const Exception& err){
-        std::cout << err.er() << "\n";
+        assert(caught == true);
+
+    //LimitedStack
+        LimitedStack ls(3);
+        assert(ls.isEmpty() == true);
+        assert(ls.getMaxSize() == 3);
+
+        ls.push(1);
+        ls.push(2);
+        ls.push(3);
+        assert(ls.peek() == 3);
+
+        bool caught2 = false;
+        try{
+            ls.push(4);
+        }
+        catch (const Out_of_range& err){
+            caught2 = true;
+            std::cout << err.er() << "\n";
+        }
+        assert(caught2 == true);
+
+        ls.pop();
+        assert(ls.peek() == 2);
+
+        ls.push(100);
+        assert(ls.peek() == 100);
+
+        LimitedStack ls2 = ls; // копирование: и данные, и max_size
+        assert(ls2.peek() == 100);
+        assert(ls2.getMaxSize() == 3);
+
+        LimitedStack ls3(1);
+        ls3 = ls; // присваивание: и данные, и max_size
+        assert(ls3.peek() == 100);
+        assert(ls3.getMaxSize() == 3);
+
+        caught = false;
+        try{
+            LimitedStack bad(-1);
+        }
+        catch (const Negative_element& err){
+            caught2 = true;
+            std::cout << err.er() << "\n";
+        }
+        assert(caught2 == true);
+
+        caught2 = false;
+        try{
+            LimitedStack empty(5);
+            empty.pop();
+        }
+        catch (const Stack_is_empty& err){
+            caught2 = true;
+            std::cout << err.er() << "\n";
+        }
+        assert(caught2 == true);
+
+        caught2 = false;
+        try{
+            LimitedStack empty(5);
+            empty.peek();
+        }
+        catch (const Stack_is_empty& err){
+            caught2 = true;
+            std::cout << err.er() << "\n";
+        }
+        assert(caught == true);
     }
 
+    std::cout << "All tests passed";
     return 0;
 }
