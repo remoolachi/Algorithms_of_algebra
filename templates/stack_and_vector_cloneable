@@ -1,0 +1,370 @@
+#include <iostream>
+#include <sstream>
+#include <cassert>
+#include "header.hpp"
+
+class Printable{
+    public:
+        virtual ~Printable() = default;
+        virtual void print(std::ostream& out) const = 0;
+};
+
+class Cloneable{
+    public:
+        virtual ~Cloneable() = default;
+        virtual Cloneable* clone() const = 0;
+};
+
+std::ostream& operator <<(std::ostream& s, const Printable& p){
+    p.print(s);
+    return s;
+}
+
+
+template <typename T>
+class Vector : virtual public Printable, virtual public Cloneable{
+    public:
+        Vector(){
+            size = 0;
+            capacity = 10;
+            data = new T[capacity];
+        }
+
+        virtual ~Vector(){
+            delete[] data;
+        }
+
+        Vector(const Vector& vector2){
+            size = vector2.size;
+            capacity = vector2.capacity;
+            data = new T[capacity];
+
+            for (int i = 0; i < size; i++){
+                data[i] = vector2.data[i];
+            }
+        }
+
+        Vector& operator =(const Vector& vector2){
+            if (this == &vector2) return *this;
+
+            T* temp = new T[vector2.capacity];
+            for (int i = 0; i < vector2.size; i++){
+                temp[i] = vector2.data[i];
+            }
+            delete[] data;
+            data = temp;
+            size = vector2.size;
+            capacity = vector2.capacity;
+
+            return *this;
+        }
+
+        T& operator [](int idx){
+            if (idx < 0 || idx >= size){
+                throw Out_of_range();
+            }
+            return data[idx];
+        }
+
+        virtual int push(T val){
+            if (size == capacity){
+                if (resize() != 0){
+                    throw Eror_in_resize();
+                }
+            }
+
+            data[size++] = val;
+            return 0;
+        }
+
+        virtual int pop(){
+            if (size == 0){
+                throw Vector_is_empty();
+            }
+            size--;
+            return 0;
+        }
+
+        void clear(){
+            size = 0;
+        }
+
+        void print(std::ostream& out) const override{
+            for (int i = 0; i < size; i++){
+                out << data[i];
+                if (i+1 < size) out << " ";
+            }
+        }
+
+        Cloneable* clone() const override{
+            return new Vector(*this);
+        }
+
+        friend std::istream& operator >>(std::istream& in, Vector& vect){
+            int n;
+            if (!(in >> n)){
+                throw Eror_in_reading_element();
+            }
+            if (n < 0){
+                throw Negative_element();
+            }
+
+            vect.clear();
+            for (int i = 0; i < n; i++){
+                int x;
+                if (!(in >> x)){
+                    throw Eror_in_reading_element();
+                }
+                vect.push(x);
+            }
+            return in;
+        }
+
+    protected:
+        T *data = nullptr;
+        int size;
+        int capacity;
+
+        int resize(){
+            int cap;
+            if (capacity){
+                cap = capacity*2;}
+            else cap = 10;
+
+            T *tmp = new int[cap];
+            for (int i = 0; i < size; i++) tmp[i] = data[i];
+            delete[] data;
+            data = tmp;
+            capacity = cap;
+            return 0;
+        }
+};
+
+
+template <typename T>
+class IntStack : virtual public Printable, virtual public Cloneable{
+    private:
+        struct Node{
+            T value;
+            Node* next;
+        };
+        Node*top;
+
+    public:
+        IntStack(){
+            top = new Node;
+            top->value = 0;
+            top->next = nullptr;
+        }
+
+        virtual ~IntStack(){
+            while (top!=nullptr){
+                Node* nxt = top;
+                top = top->next;
+                delete nxt;
+            }
+        }
+
+        IntStack(const IntStack& other){
+            top = new Node;
+            top->value = 0;
+            top->next = nullptr;
+
+            Node* tail = top;
+            Node* curr = other.top->next;
+
+            while (curr != nullptr){
+                Node* node = new Node;
+                node->value = curr->value;
+                node->next = nullptr;
+                tail->next = node;
+                tail = node;
+                curr = curr->next;
+            }
+        }
+
+        IntStack& operator=(const IntStack& other){
+            if (this == &other) return *this;
+
+            while (top != nullptr){
+                Node* curr = top;
+                top = top->next;
+                delete curr;
+            }
+
+            top = new Node;
+            top->value = 0;
+            top->next = nullptr;
+
+            Node* tail = top;
+            Node* curr = other.top->next;
+
+            while (curr != nullptr){
+                Node* node = new Node;
+                node->value = curr->value;
+                node->next = nullptr;
+                tail->next = node;
+                tail = node;
+                curr = curr->next;
+            }
+
+            return *this;
+        }
+
+        int& operator[](int idx){
+            Node* curr = top->next;
+            for (int i = 0; i < idx && curr != nullptr; i++){
+                curr = curr->next;
+            }
+            if (curr == nullptr) throw Out_of_range();
+            return curr->value;
+        }
+
+        virtual int push(int value){
+            Node* new_node = new Node;
+            new_node->value = value;
+            new_node->next = top->next;
+            top->next = new_node;
+            return 0;
+        }
+
+        bool isEmpty(){
+            if (top->next==nullptr) return true;
+            else return false;
+        }
+
+        virtual int pop(){
+            if (!isEmpty()){
+                Node* temp = top->next;
+                int val = top->next->value;
+                top->next = temp->next;
+                delete temp;
+                return val;
+            }
+            throw Stack_is_empty();
+        }
+
+        virtual int peek(){
+            if (isEmpty()){
+                throw Stack_is_empty();
+            }
+            else{
+                return top->next->value;
+            }
+        }
+
+        void print(std::ostream& out) const override{
+            Node* curr = top->next;
+            while (curr != nullptr){
+                out << curr->value;
+                if (curr->next != nullptr) out << " ";
+                curr = curr->next;
+            }
+        }
+
+        Cloneable* clone() const override{
+            return new IntStack(*this);
+        }
+
+        friend std::istream& operator >>(std::istream& in, IntStack& s){
+            int n;
+            if (!(in >> n)){
+                throw Eror_in_reading_element();
+            }
+            if (n < 0){
+                throw Negative_element();
+            }
+
+            Node* tail = s.top;
+            while (tail->next != nullptr){
+                tail = tail->next;
+            }
+            for (int i = 0; i < n; i++){
+                int x;
+                if (!(in >> x)){
+                    throw Eror_in_reading_element();
+                }
+                Node* node = new Node;
+                node->value = x;
+                node->next = nullptr;
+                tail->next = node;
+                tail = node;
+            }
+
+            return in;
+        }
+};
+
+int main(){
+    try{
+        {
+            Vector v;
+            v.push(1);
+            v.push(2);
+            v.push(3);
+
+
+            std::ostringstream str_vect;
+            str_vect << static_cast<const Printable&>(v);
+            assert(str_vect.str() == "1 2 3");
+
+
+            Cloneable* c = v.clone();
+            Vector* cloned = dynamic_cast<Vector*>(c);
+            assert(cloned->operator[](0) == 1);
+            assert(cloned->operator[](1) == 2);
+            assert(cloned->operator[](2) == 3);
+
+
+            v[0] = 100;
+            assert(cloned->operator[](0) == 1);
+
+            delete c;
+        }
+
+        {
+            IntStack s;
+            s.push(1);
+            s.push(2);
+            s.push(3);
+
+
+            std::ostringstream str_stack;
+            str_stack << static_cast<const Printable&>(s);
+            assert(str_stack.str() == "3 2 1");
+
+            Cloneable* c = s.clone();
+            IntStack* cloned = dynamic_cast<IntStack*>(c);
+            assert(cloned->operator[](0) == 3);
+            assert(cloned->operator[](1) == 2);
+            assert(cloned->operator[](2) == 1);
+
+            s[0] = 100;
+            assert(cloned->operator[](0) == 3);
+
+            delete c;
+        }
+
+        {
+            Vector v;
+            v.push(1);
+            v.push(2);
+
+            Printable* arr[1];
+            arr[0] = &v;
+
+            std::ostringstream ss;
+            ss << *arr[0];
+
+            assert(ss.str() == "1 2");
+        }
+
+
+        std::cout << "All tests passed\n";
+    }
+    catch (const Exception& err){
+        std::cout << err.er() << "\n";
+    }
+
+    return 0;
+}
