@@ -111,7 +111,7 @@ class Vector : virtual public Printable, virtual public Cloneable{
 
             vect.clear();
             for (int i = 0; i < n; i++){
-                int x;
+                T x;
                 if (!(in >> x)){
                     throw Eror_in_reading_element();
                 }
@@ -131,7 +131,7 @@ class Vector : virtual public Printable, virtual public Cloneable{
                 cap = capacity*2;}
             else cap = 10;
 
-            T *tmp = new int[cap];
+            T *tmp = new T[cap];
             for (int i = 0; i < size; i++) tmp[i] = data[i];
             delete[] data;
             data = tmp;
@@ -152,9 +152,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
 
     public:
         IntStack(){
-            top = new Node;
-            top->value = 0;
-            top->next = nullptr;
+            top = new Node{T{}, nullptr};
         }
 
         virtual ~IntStack(){
@@ -211,7 +209,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
             return *this;
         }
 
-        int& operator[](int idx){
+        T& operator[](int idx){
             Node* curr = top->next;
             for (int i = 0; i < idx && curr != nullptr; i++){
                 curr = curr->next;
@@ -220,7 +218,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
             return curr->value;
         }
 
-        virtual int push(int value){
+        virtual int push(T value){
             Node* new_node = new Node;
             new_node->value = value;
             new_node->next = top->next;
@@ -233,7 +231,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
             else return false;
         }
 
-        virtual int pop(){
+        virtual T pop(){
             if (!isEmpty()){
                 Node* temp = top->next;
                 int val = top->next->value;
@@ -244,7 +242,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
             throw Stack_is_empty();
         }
 
-        virtual int peek(){
+        virtual T peek(){
             if (isEmpty()){
                 throw Stack_is_empty();
             }
@@ -280,7 +278,7 @@ class IntStack : virtual public Printable, virtual public Cloneable{
                 tail = tail->next;
             }
             for (int i = 0; i < n; i++){
-                int x;
+                T x;
                 if (!(in >> x)){
                     throw Eror_in_reading_element();
                 }
@@ -298,72 +296,164 @@ class IntStack : virtual public Printable, virtual public Cloneable{
 int main(){
     try{
         {
-            Vector v;
+            //проверка cloneable (вектор)
+            Vector<int> v;
             v.push(1);
             v.push(2);
             v.push(3);
-
 
             std::ostringstream str_vect;
             str_vect << static_cast<const Printable&>(v);
             assert(str_vect.str() == "1 2 3");
 
-
             Cloneable* c = v.clone();
-            Vector* cloned = dynamic_cast<Vector*>(c);
-            assert(cloned->operator[](0) == 1);
-            assert(cloned->operator[](1) == 2);
-            assert(cloned->operator[](2) == 3);
-
+            Vector<int>* cloned = dynamic_cast<Vector<int>*>(c);
+            assert(cloned != nullptr);
+            assert((*cloned)[0] == 1);
+            assert((*cloned)[1] == 2);
+            assert((*cloned)[2] == 3);
 
             v[0] = 100;
-            assert(cloned->operator[](0) == 1);
+            assert((*cloned)[0] == 1);
 
             delete c;
         }
 
+        //проверка cloneable(стэк)
         {
-            IntStack s;
+            IntStack<int> s;
             s.push(1);
             s.push(2);
             s.push(3);
-
 
             std::ostringstream str_stack;
             str_stack << static_cast<const Printable&>(s);
             assert(str_stack.str() == "3 2 1");
 
             Cloneable* c = s.clone();
-            IntStack* cloned = dynamic_cast<IntStack*>(c);
-            assert(cloned->operator[](0) == 3);
-            assert(cloned->operator[](1) == 2);
-            assert(cloned->operator[](2) == 1);
+            IntStack<int>* cloned = dynamic_cast<IntStack<int>*>(c);
+            assert(cloned != nullptr);
+            assert((*cloned)[0] == 3);
+            assert((*cloned)[1] == 2);
+            assert((*cloned)[2] == 1);
 
             s[0] = 100;
-            assert(cloned->operator[](0) == 3);
+            assert((*cloned)[0] == 3);
 
             delete c;
         }
 
+        //Vector<double>
         {
-            Vector v;
-            v.push(1);
-            v.push(2);
+            Vector<double> vd;
+            vd.push(1.5);
+            vd.push(2.5);
+            vd.push(3.5);
 
-            Printable* arr[1];
-            arr[0] = &v;
+            std::ostringstream os;
+            os << static_cast<const Printable&>(vd);
+            assert(os.str() == "1.5 2.5 3.5");
 
-            std::ostringstream ss;
-            ss << *arr[0];
+            Cloneable* c = vd.clone();
+            Vector<double>* cloned = dynamic_cast<Vector<double>*>(c);
+            assert(cloned != nullptr);
+            assert((*cloned)[0] == 1.5);
+            assert((*cloned)[1] == 2.5);
+            assert((*cloned)[2] == 3.5);
 
-            assert(ss.str() == "1 2");
+            vd[0] = 100.0;
+            assert((*cloned)[0] == 1.5);
+
+            delete c;
         }
 
+        //Vector<string>
+        {
+            Vector<std::string> vs;
+            vs.push("hello");
+            vs.push("world");
 
-        std::cout << "All tests passed\n";
+            std::ostringstream os;
+            os << static_cast<const Printable&>(vs);
+            assert(os.str() == "hello world");
+
+            Cloneable* c = vs.clone();
+            Vector<std::string>* cloned = dynamic_cast<Vector<std::string>*>(c);
+            assert(cloned != nullptr);
+            assert((*cloned)[0] == "hello");
+            assert((*cloned)[1] == "world");
+
+            vs[0] = "changed";
+            assert((*cloned)[0] == "hello");
+
+            delete c;
+        }
+
+        //IntStack<double>
+        {
+            IntStack<double> sd;
+            sd.push(1.5);
+            sd.push(2.5);
+
+            std::ostringstream os;
+            os << static_cast<const Printable&>(sd);
+            assert(os.str() == "2.5 1.5");
+
+            assert(sd.pop() == 2.5);
+            assert(sd.peek() == 1.5);
+        }
+
+        //IntStack<string>
+        {
+            IntStack<std::string> ss;
+            ss.push("a");
+            ss.push("b");
+            ss.push("c");
+
+            std::ostringstream os;
+            os << static_cast<const Printable&>(ss);
+            assert(os.str() == "c b a");
+
+            assert(ss.pop() == "c");
+            assert(ss.peek() == "b");
+        }
+
+        {
+            // Out_of_range
+            Vector<int> v;
+            v.push(1);
+            bool caught = false;
+            try { v[5]; } catch (const Out_of_range&) { caught = true; }
+            assert(caught);
+
+            // Vector_is_empty
+            caught = false;
+            try { v.pop(); v.pop(); v.pop(); } catch (const Vector_is_empty&) { caught = true; }
+            assert(caught);
+
+            // Stack_is_empty
+            IntStack<int> s;
+            caught = false;
+            try { s.pop(); } catch (const Stack_is_empty&) { caught = true; }
+            assert(caught);
+
+            // Negative_element + Eror_in_reading_element
+            std::istringstream bad("-5");
+            caught = false;
+            try { bad >> v; } catch (const Negative_element&) { caught = true; }
+            assert(caught);
+
+            std::istringstream trash("abc");
+            caught = false;
+            try { trash >> v; } catch (const Eror_in_reading_element&) { caught = true; }
+            assert(caught);
+        }
     }
     catch (const Exception& err){
         std::cout << err.er() << "\n";
+    }
+    catch (const std::exception& err){
+        std::cout << "std::exception: " << err.what() << "\n";
     }
 
     return 0;
