@@ -29,6 +29,9 @@ class Vector{
 
         //оператор присваивания
         Vector& operator =(const Vector& vector2){
+            if (this == &vector2){
+                return *this;
+            }
             int* temp = new int[vector2.capacity];
             for (int i = 0; i < vector2.sizee; i++){
                 temp[i] = vector2.data[i];
@@ -49,15 +52,13 @@ class Vector{
             return data[idx];
         }
 
-        int push(int val){
+        int push_back(int val){
             if (sizee == capacity){
                 if (resize() != 0){
                     throw Eror_in_resize();
                 }
             }
-
             data[sizee++] = val;
-            return 0;
         }
 
         int pop(){
@@ -88,7 +89,7 @@ class Vector{
                 if (!(in >> x)){
                     throw Eror_in_reading_element();
                 }
-                vect.push(x);
+                vect.push_back(x);
             }
             return in;
         }
