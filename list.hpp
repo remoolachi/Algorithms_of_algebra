@@ -141,6 +141,11 @@ class List{
             return out;
         }
 
+        T& back(){
+            if (sizee == 0) throw Vector_is_empty();
+            return tail->prev->value;
+        }
+
 
 };
 #endif
