@@ -62,9 +62,32 @@ class Vector{
             data[sizee++] = val;
         }
 
+        void push_front(T val){
+            if (sizee == capacity){
+                if (resize() != 0){
+                    throw Eror_in_resize();
+                }
+            }
+            for (int i = sizee; i > 0; i--){
+                data[i] = data[i-1];
+            }
+            data[0] = val;
+            sizee++;
+        }
+
         void pop_back(){
             if (sizee == 0){
                 throw Vector_is_empty();
+            }
+            sizee--;
+        }
+
+        void pop_front(){
+            if (sizee == 0){
+                throw Vector_is_empty();
+            }
+            for (int i = 0; i < sizee - 1;i++){
+                data[i] = data[i + 1];
             }
             sizee--;
         }
