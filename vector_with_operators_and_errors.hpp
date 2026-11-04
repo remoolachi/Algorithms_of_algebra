@@ -4,12 +4,13 @@
 #include <cassert>
 #include "header.hpp"
 
+template <typename T>
 class Vector{
     public:
         Vector(){ //конструктор (init)
             sizee = 0;
             capacity = 10;
-            data = new int[capacity];
+            data = new T[capacity];
         }
 
         ~Vector(){ //деструктор (delete)
@@ -20,7 +21,7 @@ class Vector{
         Vector(const Vector& vector2){
             sizee = vector2.sizee;
             capacity = vector2.capacity;
-            data = new int[capacity];
+            data = new T[capacity];
 
             for (int i = 0; i < sizee; i++){
                 data[i] = vector2.data[i];
@@ -32,7 +33,7 @@ class Vector{
             if (this == &vector2){
                 return *this;
             }
-            int* temp = new int[vector2.capacity];
+            T* temp = new T[vector2.capacity];
             for (int i = 0; i < vector2.sizee; i++){
                 temp[i] = vector2.data[i];
             }
@@ -45,14 +46,14 @@ class Vector{
         }
 
         //оператор []
-        int& operator [](int idx){
+        T& operator [](int idx){
             if (idx < 0 || idx >= sizee){
                 throw Out_of_range();
             }
             return data[idx];
         }
 
-        int push_back(int val){
+        void push_back(T val){
             if (sizee == capacity){
                 if (resize() != 0){
                     throw Eror_in_resize();
@@ -61,12 +62,18 @@ class Vector{
             data[sizee++] = val;
         }
 
-        int pop(){
+        void pop_back(){
             if (sizee == 0){
                 throw Vector_is_empty();
             }
             sizee--;
-            return 0;
+        }
+
+        T& back(){
+            if (sizee == 0){
+                throw Vector_is_empty();
+            }
+            return data[sizee-1];
         }
 
         void clear(){
@@ -85,7 +92,7 @@ class Vector{
 
             vect.clear();
             for (int i = 0; i < n; i++){
-                int x;
+                T x;
                 if (!(in >> x)){
                     throw Eror_in_reading_element();
                 }
@@ -109,7 +116,7 @@ class Vector{
 
 
     protected:
-        int *data = nullptr;
+        T *data = nullptr;
         int sizee;
         int capacity;
 
@@ -121,7 +128,7 @@ class Vector{
             else cap = 10;
 
 
-            int *tmp = new int[cap];
+            T *tmp = new T[cap];
             for (int i = 0; i < sizee; i++) tmp[i] = data[i];
             delete[] data;
             data = tmp;
