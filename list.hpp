@@ -51,7 +51,7 @@ class List{
             return *this;
         }
 
-        void push_back(const T& val){
+        void push_back(T val){
             Node* n = new Node(val, tail->prev, tail);
             tail->prev->next = n;
             tail->prev = n;
@@ -67,7 +67,7 @@ class List{
             sizee--;
         }
 
-        void push_front(const T& val){
+        void push_front(T val){
             Node* n = new Node(val, head, head->next);
             head->next->prev = n;
             head->next = n;
