@@ -49,4 +49,11 @@ class Eror_in_resize: public Exception{
             return "resize error";
         }
 };
+
+class Stack_is_full : public Exception{
+public:
+    const char* er() const{
+        return "stack is full";
+    }
+};
 #endif

@@ -4,9 +4,6 @@
 
 
 
-
-
-
 class Stack2 : protected Vector{
     public:
         Stack2() : Vector() {}
