@@ -4,13 +4,13 @@
 //использовать is_sorted и проверить в ассерте
 
 
-int swap(int a, int b){
+void swap(int& a, int& b){
     int temp = a;
     a = b;
     b = temp;
 }
 
-int partition(int* ar, int l, int r){
+int partition(Vector<int>& ar, int l, int r){
     int V = ar[(l+r)/2];
     int i = l;
     int j = r;
@@ -32,9 +32,7 @@ int partition(int* ar, int l, int r){
 }
 
 
-
-
-void quick_sort(int* ar, int l, int r){
+void quick_sort(Vector<int>& ar, int l, int r){
     if (l<r){
         int q = partition(ar, l, r);
         quick_sort(ar, l, q);
@@ -42,7 +40,7 @@ void quick_sort(int* ar, int l, int r){
     }
 }
 
-int is_sorted(int* ar, int size){
+int is_sorted(Vector<int>& ar, int size){
     int flag = 0;
     for (int i=1; i<size && flag == 0; i++){
         if(ar[i-1]>ar[i]){
@@ -50,7 +48,6 @@ int is_sorted(int* ar, int size){
         }
     }
     return flag;
-
 }
 
 int main(){
@@ -61,10 +58,10 @@ int main(){
     vect.push_back(2);
     vect.push_back(3);
 
-    assert(!is_sorted(vect));
+    assert(!is_sorted(vect,4));
 
     quick_sort(vect, 0, 3);
-    assert(is_sorted(vect));
+    assert(is_sorted(vect,4));
 }
 
 
