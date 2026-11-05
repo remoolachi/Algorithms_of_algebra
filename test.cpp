@@ -92,15 +92,15 @@ class List{
 
         int flag = false;
 
-        while (i->value<=j->value && !flag){
-            while (i->value > pivot){
+        while (!flag){
+            while (i->value < pivot){
                 i = i->next;
             }
             while (j->value > pivot){
                 j = j->prev;
             }
 
-            if (i==j || i-> prev == j){
+            if (i==j || i->prev == j){
                 flag = true;
             }
             else{
@@ -113,9 +113,11 @@ class List{
     }
 
     void quick_sort(Node* l, Node* r){
-        if (l->value < r->value){
-            Node* q = partition(l, r);
+        Node* q = partition(l, r);
+        if (l!=q){
             quick_sort(l, q);
+        }
+        if (q->next!=r && q->next!=nullptr){
             quick_sort(q->next, r);
         }
     }
