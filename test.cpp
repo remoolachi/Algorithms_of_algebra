@@ -63,82 +63,79 @@ class List{
     protected:
         struct Node{
             T value;
-            Node* prev;
             Node* next;
-            Node(const T& v, Node* p = nullptr, Node* n = nullptr) : value(v), prev(p), next(n) {}
+            Node(const T& v, Node* n = nullptr) : value(v), next(n) {}
         };
 
-    Node* head;
-    Node* tail;
-    int sizee;
+        Node* head;
+        Node* tail;
+        int sizee;
 
-    void swap(int& a, int& b){
-        int temp = a;
-        a = b;
-        b = temp;
-    }
-
-    Node* partition(Node* l, Node* r){
-        Node* t1 = l;
-        Node* t2 = l;
-        while(t2!=r && t2->next != r){
-            t1 = t1->next;
-            t2 = t2->next->next;
+        void swap(T& a, T& b){
+            T temp = a;
+            a = b;
+            b = temp;
         }
-        int pivot = t1->value;
 
-        Node* i = l;
-        Node* j = r;
-
-        int flag = false;
-
-        while (!flag){
-            while (i->value < pivot){
-                i = i->next;
+        Node* partition(Node* l, Node* r){
+            Node* t1 = l;
+            Node* t2 = l;
+            while (t2 != r && t2->next != r){
+                t1 = t1->next;
+                t2 = t2->next->next;
             }
-            while (j->value > pivot){
-                j = j->prev;
+            T pivot = t1->value;
+
+            Node* i = l;
+            Node* j = l;
+            bool flag = false;
+
+            while (j != r && !flag){
+                if (j->value < pivot){
+                    swap(i->value, j->value);
+                    i = i->next;
+                }
+                j = j->next;
+                
+                if (j == r){
+                    flag = true;
+                }
+            }
+            return i;
+        }
+
+        void quick_sort(Node* l, Node* r){
+            int flag = 0;
+            if (l == nullptr || r == nullptr || l == r || l->next == r){
+                flag =1;
             }
 
-            if (i==j || i->prev == j){
-                flag = true;
-            }
-            else{
-                swap(i->value, j->value);
-                i = i->next;
-                j = j->prev;
+            if (flag ==0){
+                Node* q = partition(l, r);
+
+                if (l != q){
+                    quick_sort(l, q);
+                }
+                
+                if (q->next != r){
+                    quick_sort(q, r);
+                }
             }
         }
-        return j;
-    }
-
-    void quick_sort(Node* l, Node* r){
-        Node* q = partition(l, r);
-        if (l!=q){
-            quick_sort(l, q);
-        }
-        if (q->next!=r && q->next!=nullptr){
-            quick_sort(q->next, r);
-        }
-    }
 
     public:
         List() : sizee(0){
-            head = new Node(T());
-            tail = new Node(T());
-            head->next = tail;
-            tail->prev = head;
+            head = nullptr;
+            tail = nullptr;
         }
 
         virtual ~List(){
             clear();
-            delete head;
-            delete tail;
         }
 
         List(const List& other) : List(){
-            Node* cur = other.head->next;
-            while (cur != other.tail) {
+            Node* cur = other.head;
+            while (cur != nullptr) {
                 push_back(cur->value);
                 cur = cur->next;
             }
@@ -147,9 +144,8 @@ class List{
         List& operator=(const List& other){
             if (this == &other) return *this;
             clear();
-
-            Node* cur = other.head->next;
-            while (cur != other.tail){
+            Node* cur = other.head;
+            while (cur != nullptr){
                 push_back(cur->value);
                 cur = cur->next;
             }
@@ -157,34 +153,46 @@ class List{
         }
 
         void push_back(T val){
-            Node* n = new Node(val, tail->prev, tail);
-            tail->prev->next = n;
-            tail->prev = n;
+            Node* n = new Node(val);
+            if (tail == nullptr) {
+                head = tail = n;
+            } else {
+                tail->next = n;
+                tail = n;
+            }
+            sizee++;
+        }
+
+        void push_front(T val){
+            Node* n = new Node(val, head);
+            head = n;
+            if (tail == nullptr) tail = head;
             sizee++;
         }
 
         void pop_back(){
             if (sizee == 0) throw Vector_is_empty();
-            Node* pop_element = tail->prev;
-            pop_element->prev->next = tail;
-            tail->prev = pop_element->prev;
-            delete pop_element;
+            if (sizee == 1) {
+                delete head;
+                head = tail = nullptr;
+            } else {
+                Node* cur = head;
+                while (cur->next != tail) {
+                    cur = cur->next;
+                }
+                delete tail;
+                tail = cur;
+                tail->next = nullptr;
+            }
             sizee--;
-        }
-
-        void push_front(T val){
-            Node* n = new Node(val, head, head->next);
-            head->next->prev = n;
-            head->next = n;
-            sizee ++;
         }
 
         void pop_front(){
             if (sizee == 0) throw Vector_is_empty();
-            Node* pop_element = head->next;
-            head->next = pop_element->next;
-            pop_element->next->prev = head;
-            delete pop_element;
+            Node* temp = head;
+            head = head->next;
+            if (head == nullptr) tail = nullptr;
+            delete temp;
             sizee--;
         }
 
@@ -192,19 +200,19 @@ class List{
             return sizee == 0;
         }
 
-        int  size(){
+        int size(){
             return sizee;
         }
 
         void clear(){
-            Node* cur = head->next;
-            while (cur != tail){
+            Node* cur = head;
+            while (cur != nullptr){
                 Node* nxt = cur->next;
                 delete cur;
                 cur = nxt;
             }
-            head->next = tail;
-            tail->prev = head;
+            head = nullptr;
+            tail = nullptr;
             sizee = 0;
         }
 
@@ -212,7 +220,7 @@ class List{
             if (idx < 0 || idx >= sizee){
                 throw Out_of_range();
             }
-            Node* cur = head->next;
+            Node* cur = head;
             for (int i = 0; i < idx; ++i){
                 cur = cur->next;
             }
@@ -238,23 +246,26 @@ class List{
 
         friend std::ostream& operator<<(std::ostream& out, const List& lst){
             bool first = true;
-            for (Node* cur = lst.head->next; cur != lst.tail; cur = cur->next){
+            Node* cur = lst.head;
+            while (cur != nullptr){
                 if (!first) out << " ";
                 out << cur->value;
                 first = false;
+                cur = cur->next;
             }
             return out;
         }
 
         T& back(){
             if (sizee == 0) throw Vector_is_empty();
-            return tail->prev->value;
+            return tail->value;
         }
 
         void sort(){
-            quick_sort(head->next, tail->prev);
+            if (sizee > 1){
+                quick_sort(head, nullptr);
+            }
         }
-
 };
 
 int main(){
