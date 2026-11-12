@@ -72,59 +72,87 @@ class List{
     Node* tail;
     int sizee;
 
-    void swap(int& a, int& b){
-        int temp = a;
-        a = b;
-        b = temp;
-    }
-
-    Node* partition(Node* l, Node* r){
-        Node* t1 = l;
-        Node* t2 = l;
-        while(t2!=r && t2->next != r){
-            t1 = t1->next;
-            t2 = t2->next->next;
-        }
-        int pivot = t1->value;
-
-        Node* i = l;
-        Node* j = r;
-
-        int flag = false;
-
-        while (!flag){
-            while (i->value < pivot){
-                i = i->next;
-            }
-            while (j->value > pivot){
-                j = j->prev;
-            }
-
-            if (i==j || i->prev == j){
-                flag = true;
-            }
-            else{
-                swap(i->value, j->value);
-                i = i->next;
-                j = j->prev;
-            }
-        }
-        return j;
-    }
-
-    void quick_sort(Node* l, Node* r){
-        if (l!=nullptr && r!=nullptr && l!=r && l->prev!=r){
-            Node* q = partition(l, r);
-            if (l!=q){
-                quick_sort(l, q);
-            }
-            if (q->next!=r && q->next!=nullptr){
-                quick_sort(q->next, r);
-            }
-        }
-    }
-
     public:
+        class ListIterator{
+            private:
+                Node* cur;
+                ListIterator(Node* n): cur(n) {}
+                friend class List;
+            public:
+                int& operator*(){
+                    return cur->value;
+                }
+                ListIterator& operator++(){
+                    cur = cur->next;
+                    return *this;
+                }
+                ListIterator& operator--(){
+                    cur = cur->prev;
+                    return *this;
+                }
+                bool operator!=(ListIterator& t){
+                    return cur!=t.cur;
+                }
+        };
+        ListIterator begin(){
+            return ListIterator(head->next);
+        }
+        ListIterator end(){
+            return ListIterator(tail->prev);
+        }
+
+        void swap(ListIterator a, ListIterator b){
+            int temp = a;
+            a = b;
+            b = temp;
+        }   
+
+        ListIterator partition(ListIterator l, ListIterator r){
+            ListIterator t1 = l;
+            ListIterator t2 = l;
+            while(t2!=r && t2->next != r){
+                t1 = ++t1;
+                t2 = ++(++t2);
+            }
+            int pivot = *t1;
+
+            ListIterator i = l;
+            ListIterator j = r;
+
+            int flag = false;
+
+            while (!flag){
+                while (*i < pivot){
+                    i = ++i;
+                }
+                while (*j > pivot){
+                    j = --j;
+                }
+
+                if (i==j || --i == j){
+                    flag = true;
+                }
+                else{
+                    swap(*i, *j);
+                    i = ++i;
+                    j = --j;
+                }
+            }
+            return j;
+        }
+
+        void quick_sort(ListIterator l, ListIterator r){
+            if (l!=r){
+                ListIterator q = partition(l, r);
+                if (l!=q){
+                    quick_sort(l, q);
+                }
+                if (++q!=r && ++q!=nullptr){
+                    quick_sort(++q, r);
+                }
+            }
+        }
+
         List() : sizee(0){
             head = new Node(T());
             tail = new Node(T());
